@@ -26,6 +26,7 @@ interface Apresentacao {
 }
 
 export const createTxtFileOnlyForPresentations = async (i: number, anvisaData: AnvisaDataResponse, excelData: ExcelData, erroredRows: Array<{row: number,  item: string, }>) => {
+  
   const result = anvisaData.apresentacoes.map(apresentacao => {
     let flag = 0;
     

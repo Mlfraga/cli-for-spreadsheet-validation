@@ -54,8 +54,6 @@ const command: GluegunCommand = {
   name: 'cli-spreadsheet-validate',
   run: async toolbox => {
     const { print } = toolbox;
-    
-
 
     const validationTypeQuestion = {
       type: 'select',
@@ -159,9 +157,6 @@ const command: GluegunCommand = {
 
       return;
     }
-    
-    spinner.stop();
-    spinner.succeed('Validação concluída.')
 
     if(validationType.typeOfValidation === 'Gerar arquivo de texto com erros e planilha com dados corrigidos' || validationType.typeOfValidation === 'Gerar apenas arquivo de texto com dados errados'){
       const erroredRowsFormatted = erroredRows.map(row => {
@@ -170,9 +165,13 @@ const command: GluegunCommand = {
 
       fs.writeFile('conference.txt', JSON.stringify(erroredRowsFormatted, null, 4), function(err){
         if (err) return console.log(err);
+        
         print.success('Arquivo criado com sucesso conference.txt');
       });
-    }  
+    }
+    
+    spinner.stop();
+    spinner.succeed('Validação concluída.')
   }
 }
 

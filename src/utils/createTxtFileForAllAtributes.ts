@@ -26,7 +26,7 @@ interface Apresentacao {
 }
 
 export const createTxtFileForAllAtributes = async (i: number, anvisaData: AnvisaDataResponse, excelData: ExcelData, erroredRows: Array<{row: number,  item: string, }>) => {
-  
+
   if(anvisaData.empresa !== excelData.companyName) {
     erroredRows.push({row: i, item: 'nome da empresa'});
   }
