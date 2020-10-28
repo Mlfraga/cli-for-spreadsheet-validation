@@ -1,4 +1,3 @@
-import { createTxtFile } from './../utils/createTxtFile';
 import { GluegunCommand } from 'gluegun'
 import { AxiosResponse } from 'axios';
 import * as ExcelJS from 'exceljs';
@@ -9,7 +8,10 @@ import * as ora from 'ora';
 import getProductData from '../utils/getProductData';
 import getAnvisaData from '../utils/getAnvisaData';
 import getExcelData from '../utils/getExcelData';
-import CreateCorrectedDataSheet from '../utils/createCorrectedDataSheet';
+import createCorrectedDataSheet from '../utils/createCorrectedDataSheet';
+import { createTxtFileForAllAtributes } from './../utils/createTxtFileForAllAtributes';
+import { createTxtFileOnlyForPresentations } from './../utils/createTxtFileOnlyForPresentations';
+import { createTxtFileOnlyForTechinicalNameAndRisk } from './../utils/createTxtFileOnlyForTechinicalNameAndRisk';
 
 interface ExcelData {
   product: string;
@@ -38,19 +40,33 @@ interface Apresentacao {
   componente: string | null,
 }
 
+const ALL_DATA_TEXT_FILE_PLUS = 'Gerar arquivo de texto com todos os dados divergentes e planilha com os dados de acordo com o sistema da Anvisa';
+    
+const ALL_DATA_TEXT_FILE = 'Gerar apenas arquivo de texto com todos os dados divergentes';
+
+const CORRECTED_DATASHEET = 'Gerar apenas a planilha com os dados de acordo com o sistema da Anvisa';
+
+const CREATE_TEXT_FILE_ONY_FOR_PRESENTATIONS = 'Gerar arquivo de texto com apenas apresentações/modelos divergentes';
+
+const CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS = 'Gerar arquivo de texto com apenas nome técnico e classe de risco divergentes e planilha com os dados de acordo com o sistema da Anvisa';
+
 const command: GluegunCommand = {
   name: 'cli-spreadsheet-validate',
   run: async toolbox => {
     const { print } = toolbox;
     
+
+
     const validationTypeQuestion = {
       type: 'select',
       name: 'typeOfValidation',
-      message: 'Qual o tipo de validação vocẽ deseja fazer?',
+      message: 'Qual validação deseja fazer?',
       choices: [
-      'Gerar arquivo de texto com erros e planilha com dados corrigidos',
-      'Gerar apenas arquivo de texto com dados errados',
-      'Gerar apenas a planilha com os dados corrigidos'
+      ALL_DATA_TEXT_FILE_PLUS,
+      ALL_DATA_TEXT_FILE,
+      CORRECTED_DATASHEET,
+      CREATE_TEXT_FILE_ONY_FOR_PRESENTATIONS,
+      CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS
       ]
     };
 
@@ -86,7 +102,7 @@ const command: GluegunCommand = {
       return;
     }
 
-    if(validationType.typeOfValidation === 'Gerar arquivo de texto com erros e planilha com dados corrigidos' ||           validationType.typeOfValidation === 'Gerar apenas a planilha com os dados corrigidos'){
+    if(validationType.typeOfValidation === ALL_DATA_TEXT_FILE_PLUS || validationType.typeOfValidation === CORRECTED_DATASHEET || validationType.typeOfValidation === CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS){
       try{  
         var correctedDataSheet = workbook.addWorksheet('Dados corrigidos');
       }catch(err){
@@ -102,30 +118,40 @@ const command: GluegunCommand = {
 
     try{
       for(let i = 3; i <= worksheet.rowCount; i++){
+        
         spinner.text = `Validando dados ${i} de ${worksheet.rowCount} da planilha`;
+
         const processCell = worksheet.getRow(i).getCell(7);
         
         const process = processCell.value?.toString().replace(`'`, '');
 
         const response: AxiosResponse  = await getProductData(process);
-
         
         const anvisaData: AnvisaDataResponse = getAnvisaData(response, true);
+
         const anvisaDataNoFormat: AnvisaDataResponse = getAnvisaData(response, false);
             
         const excelData: ExcelData = getExcelData(worksheet, i);
 
-        if(validationType.typeOfValidation === 'Gerar arquivo de texto com erros e planilha com dados corrigidos'){
-          createTxtFile(i, anvisaData, excelData, erroredRows);
-          CreateCorrectedDataSheet(anvisaDataNoFormat, correctedDataSheet, i, workbook, file, processCell);
+        if(validationType.typeOfValidation === ALL_DATA_TEXT_FILE_PLUS){
+          createTxtFileForAllAtributes(i, anvisaData, excelData, erroredRows);
+          createCorrectedDataSheet(anvisaDataNoFormat, correctedDataSheet, i, workbook, file, processCell);
         }
 
-        if(validationType.typeOfValidation === 'Gerar apenas arquivo de texto com dados errados'){
-          createTxtFile(i, anvisaData, excelData, erroredRows);
+        if(validationType.typeOfValidation === ALL_DATA_TEXT_FILE){
+          createTxtFileForAllAtributes(i, anvisaData, excelData, erroredRows);
         }
 
-        if(validationType.typeOfValidation === 'Gerar apenas a planilha com os dados corrigidos'){
-          CreateCorrectedDataSheet(anvisaDataNoFormat, correctedDataSheet, i, workbook, file, processCell);
+        if(validationType.typeOfValidation === CORRECTED_DATASHEET){
+          createCorrectedDataSheet(anvisaDataNoFormat, correctedDataSheet, i, workbook, file, processCell);
+        }
+        
+        if(validationType.typeOfValidation === CREATE_TEXT_FILE_ONY_FOR_PRESENTATIONS){
+          createTxtFileOnlyForPresentations(i, anvisaData, excelData, erroredRows);
+        }
+        
+        if(validationType.typeOfValidation === CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS){
+          createTxtFileOnlyForTechinicalNameAndRisk(i, anvisaData, excelData, erroredRows);
         }
       }
     }catch(err) {

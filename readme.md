@@ -1,6 +1,6 @@
 # cli-spreadsheet-validate CLI
 
-A CLI for cli-spreadsheet-validate.
+Command Line Interface application for validate products spreadsheet.
 
 ## Customizing your CLI
 
