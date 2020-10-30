@@ -80,7 +80,7 @@ const command: GluegunCommand = {
     
     const fileName = await toolbox.prompt.ask(fileNameQuestion);
 
-    const file = path.resolve(__dirname, '.', `${fileName.fileName}`);
+    const file = path.resolve(__dirname, '..', '..', '..', 'Planilhas', fileName.fileName);
 
     const workbook = new ExcelJS.Workbook();
 
@@ -100,7 +100,7 @@ const command: GluegunCommand = {
       return;
     }
 
-    if(validationType.typeOfValidation === ALL_DATA_TEXT_FILE_PLUS || validationType.typeOfValidation === CORRECTED_DATASHEET || validationType.typeOfValidation === CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS){
+    if(validationType.typeOfValidation === ALL_DATA_TEXT_FILE_PLUS || validationType.typeOfValidation === CORRECTED_DATASHEET || validationType.typeOfValidation === CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS || validationType.typeOfValidation === CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS){
       try{  
         var correctedDataSheet = workbook.addWorksheet('Dados corrigidos');
       }catch(err){
@@ -117,7 +117,7 @@ const command: GluegunCommand = {
     try{
       for(let i = 3; i <= worksheet.rowCount; i++){
         
-        spinner.text = `Validando dados ${i} de ${worksheet.rowCount} da planilha`;
+        spinner.text = `Verificando ${i} linhas de ${worksheet.rowCount} da planilha`;
 
         const processCell = worksheet.getRow(i).getCell(7);
         
@@ -158,13 +158,16 @@ const command: GluegunCommand = {
       return;
     }
 
-    if(validationType.typeOfValidation === 'Gerar arquivo de texto com erros e planilha com dados corrigidos' || validationType.typeOfValidation === 'Gerar apenas arquivo de texto com dados errados'){
+    if(validationType.typeOfValidation === ALL_DATA_TEXT_FILE_PLUS || validationType.typeOfValidation === ALL_DATA_TEXT_FILE || validationType.typeOfValidation === CREATE_TEXT_FILE_ONY_FOR_PRESENTATIONS || validationType.typeOfValidation === CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS){
       const erroredRowsFormatted = erroredRows.map(row => {
         return `Linha ${row.row} com erro na coluna de ${row.item}`;
       }); 
 
-      fs.writeFile('conference.txt', JSON.stringify(erroredRowsFormatted, null, 4), function(err){
-        if (err) return console.log(err);
+      fs.writeFile(path.resolve(__dirname, '..', '..', '..', 'Resultado', 'conference.txt'), JSON.stringify(erroredRowsFormatted, null, 4), function(err){
+        if (err){
+          print.error('Arquivo não pode ser criado');
+          return;
+        }
         
         print.success('Arquivo criado com sucesso conference.txt');
       });
