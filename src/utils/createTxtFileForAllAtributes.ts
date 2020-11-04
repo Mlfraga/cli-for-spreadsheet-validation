@@ -35,7 +35,7 @@ export const createTxtFileForAllAtributes = async (i: number, anvisaData: Anvisa
     erroredRows.push({row: i, item: 'fabricante'});
   }
   
-  if(anvisaData.nomeTecnico !==  excelData.techinicalName) {
+  if(`${anvisaData.risco}${anvisaData.nomeTecnico}` !==  excelData.techinicalName) {
     erroredRows.push({row: i, item: 'nome técnico'});
   }
   

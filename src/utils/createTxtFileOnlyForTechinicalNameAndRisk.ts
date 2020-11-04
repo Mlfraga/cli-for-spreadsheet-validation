@@ -27,7 +27,7 @@ interface Apresentacao {
 
 export const createTxtFileOnlyForTechinicalNameAndRisk = async (i: number, anvisaData: AnvisaDataResponse, excelData: ExcelData, erroredRows: Array<{row: number,  item: string, }>) => {
  
-  if(anvisaData.nomeTecnico !==  excelData.techinicalName) {
+  if(`${anvisaData.risco}${anvisaData.nomeTecnico}` !==  excelData.techinicalName) {
     erroredRows.push({row: i, item: 'nome técnico'});
   }
 
