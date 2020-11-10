@@ -150,6 +150,7 @@ const command: GluegunCommand = {
         
         if(validationType.typeOfValidation === CREATE_TEXT_FILE_ONLY_FOR_TECHNICAL_NAME_PLUS){
           createTxtFileOnlyForTechinicalNameAndRisk(i, anvisaData, excelData, erroredRows);
+          createCorrectedDataSheet(anvisaDataNoFormat, correctedDataSheet, i, workbook, file, processCell);
         }
       }
     }catch(err) {
@@ -163,7 +164,7 @@ const command: GluegunCommand = {
         return `Linha ${row.row} com erro na coluna de ${row.item}`;
       }); 
 
-      fs.writeFile(path.resolve(__dirname, '..', '..', '..', 'Resultado', 'conference.txt'), JSON.stringify(erroredRowsFormatted, null, 4), function(err){
+      fs.writeFile(path.resolve(__dirname, '..', '..', '..', 'Resultado', 'conference.txt'), JSON.stringify(erroredRowsFormatted, null, "\r\n"), function(err){
         if (err){
           print.error('Arquivo não pode ser criado');
           return;
