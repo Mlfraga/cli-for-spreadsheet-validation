@@ -47,11 +47,11 @@ const getAnvisaData = (response: AxiosResponse<any>, formating: boolean) => {
     if(!response.data.fabricantes[0].razaoSocial){
       fabricante = formatString(String(response.data.fabricantes[0].local));
     }else{
-      fabricante = formatString(String(response.data.fabricantes[0].razaoSocial));
+      fabricante = formatString(`${String(response.data.fabricantes[0].razaoSocial)}${String(response.data.fabricantes[0].pais)}`);
     }
   }else{
      produto = String(response.data.produto);
-     nomeTecnico = String(response.data.nomeTecnico);
+     nomeTecnico = `${String(response.data.risco.sigla)} - ${String(response.data.nomeTecnico)}`;
      registro = String(response.data.registro);
      empresa = String(response.data.empresa.razaoSocial);
      risco = String(response.data.risco.sigla);
@@ -65,9 +65,9 @@ const getAnvisaData = (response: AxiosResponse<any>, formating: boolean) => {
     });
     
     if(!response.data.fabricantes[0].razaoSocial){
-      fabricante = (String(response.data.fabricantes[0].local));
+      fabricante = `${String(response.data.fabricantes[0].local)}`;
     }else{
-      fabricante = (String(response.data.fabricantes[0].razaoSocial));
+      fabricante = `${String(response.data.fabricantes[0].razaoSocial)} - ${String(response.data.fabricantes[0].pais)}`;
     }
   }
 
